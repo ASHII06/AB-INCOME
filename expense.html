@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>ລາຍການລາຍຈ່າຍ</title>
+  <link rel="icon" href="https://cdn-icons-png.flaticon.com/128/1001/1001068.png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Phetsarath:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-dark: #121212;
+      --bg-light: #1e1e1e;
+      --primary: #7209b7;
+      --primary-light: #9d4edd;
+      --danger: #e63946;
+      --text: #f8f9fa;
+      --shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Phetsarath", sans-serif;
+    }
+
+    body {
+      background: var(--bg-dark);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+      background-image: url('https://www.transparenttextures.com/patterns/dark-grunge.png'), linear-gradient(135deg, #1a1a2e, #16213e);
+      padding-bottom: 20px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 15px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 25px;
+      color: var(--danger);
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      font-size: 0.95rem;
+      opacity: 0.8;
+    }
+
+    /* ຕາຕະລາງ */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      background: rgba(30, 30, 30, 0.8);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    th, td {
+      padding: 14px 16px;
+      text-align: left;
+      border-bottom: 1px solid #333;
+    }
+
+    th {
+      background: var(--danger);
+      color: white;
+      font-weight: 500;
+    }
+
+    tr:hover {
+      background: #2a2a2a;
+    }
+
+    .action-btn {
+      background: none;
+      border: none;
+      color: var(--danger);
+      cursor: pointer;
+      font-size: 1.4rem;
+      padding: 8px;
+      border-radius: 8px;
+    }
+
+    .action-btn:hover {
+      background: rgba(230, 57, 70, 0.1);
+    }
+
+    .expense {
+      color: var(--danger);
+      font-weight: 600;
+    }
+
+    .back-btn {
+      display: block;
+      width: fit-content;
+      margin: 25px auto 0;
+      padding: 14px 28px;
+      background: var(--primary);
+      color: white;
+      text-decoration: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(114, 9, 183, 0.4);
+      transition: all 0.3s;
+    }
+
+    .back-btn:hover {
+      background: var(--primary-light);
+      transform: translateY(-2px);
+    }
+
+    /* --- Mobile Responsive --- */
+    @media (max-width: 768px) {
+      .container {
+        padding: 12px;
+      }
+
+      header h1 {
+        font-size: 1.6rem;
+      }
+
+      th, td {
+        padding: 12px 14px;
+        font-size: 0.95rem;
+      }
+
+      .action-btn {
+        font-size: 1.5rem;
+        padding: 10px;
+      }
+
+      .back-btn {
+        padding: 16px 32px;
+        font-size: 1.2rem;
+        margin-top: 30px;
+      }
+
+      /* ປ່ຽນເປັນ stacked layout */
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+
+      thead {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+      }
+
+      tr {
+        margin-bottom: 16px;
+        border: 1px solid #444;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #2a2a2a;
+      }
+
+      td {
+        position: relative;
+        padding: 10px 14px 10px 50%;
+        border: none;
+        border-bottom: 1px solid #333;
+      }
+
+      td:last-child {
+        border-bottom: none;
+      }
+
+      td:before {
+        content: attr(data-label);
+        position: absolute;
+        left: 15px;
+        top: 10px;
+        width: 45%;
+        font-weight: 600;
+        color: var(--primary-light);
+        font-size: 0.9rem;
+      }
+
+      .action-btn {
+        position: absolute;
+        top: 50%;
+        right: 12px;
+        transform: translateY(-50%);
+        font-size: 1.4rem;
+      }
+
+      td.actions-cell {
+        padding: 40px 14px 40px 50% !important;
+        text-align: left;
+      }
+
+      td.actions-cell:before {
+        top: 30px;
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><i class="fas fa-minus-circle"></i> ລາຍການລາຍຈ່າຍ</h1>
+      <p>ເດືອນນີ້</p>
+    </header>
+
+    <table>
+      <thead>
+        <tr>
+          <th>ວັນທີ</th>
+          <th>ລາຍລະອຽດ</th>
+          <th>ຈຳນວນ</th>
+          <th>ການກະທຳ</th>
+        </tr>
+      </thead>
+      <tbody id="transactionList"></tbody>
+    </table>
+
+    <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> ກັບໄປໜ້າຫຼັກ</a>
+  </div>
+
+  <script>
+    const laoMonths = [
+      'ມັງກອນ', 'ກຸມພາ', 'ມີນາ', 'ເມສາ',
+      'ພຶດສາພາ', 'ມີຖຸນາ', 'ກໍລະກົດ', 'ສິງຫາ',
+      'ກັນຍາ', 'ຕຸລາ', 'ພະຈິກ', 'ທັນວາ'
+    ];
+
+    let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+
+    function formatNumber(num) {
+      return parseFloat(num || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    function renderExpense() {
+      const list = document.getElementById('transactionList');
+      list.innerHTML = '';
+
+      const expenseList = transactions.filter(t => t.type === 'expense');
+
+      if (expenseList.length === 0) {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td colspan="4" style="text-align: center; padding: 20px; color: #aaa;">ບໍ່ມີລາຍການລາຍຈ່າຍ</td>`;
+        list.appendChild(row);
+        return;
+      }
+
+      expenseList.forEach((t, index) => {
+        const date = new Date(t.date);
+        const day = date.getDate();
+        const month = laoMonths[date.getMonth()];
+        const year = date.getFullYear();
+        const formattedDate = `${day} ${month} ${year}`;
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td data-label="ວັນທີ">${formattedDate}</td>
+          <td data-label="ລາຍລະອຽດ">${t.detail || '-'}</td>
+          <td data-label="ຈຳນວນ" class="expense">${formatNumber(t.amount)}</td>
+          <td data-label="ການກະທຳ" class="actions-cell">
+            <button class="action-btn" onclick="deleteTransaction(${index}, 'expense')">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        `;
+        list.appendChild(row);
+      });
+    }
+
+    window.deleteTransaction = function(index, type) {
+      if (confirm('ທ່ານແນ່ໃຈບໍ່ທີ່ຈະລຶບລາຍການນີ້?')) {
+        const allTransactions = JSON.parse(localStorage.getItem('transactions')) || [];
+        const filtered = allTransactions.filter(t => t.type === type);
+        const itemToDelete = filtered[index];
+
+        const finalIndex = allTransactions.findIndex(t =>
+          t.type === itemToDelete.type &&
+          t.amount === itemToDelete.amount &&
+          t.date === itemToDelete.date &&
+          t.detail === itemToDelete.detail
+        );
+
+        if (finalIndex !== -1) {
+          allTransactions.splice(finalIndex, 1);
+          localStorage.setItem('transactions', JSON.stringify(allTransactions));
+          transactions = allTransactions;
+          renderExpense();
+        }
+      }
+    };
+
+    // ເຊີດຂໍ້ມູນ
+    renderExpense();
+  </script>
+</body>
+</html>
