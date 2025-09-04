@@ -235,119 +235,154 @@
   </div>
 
   <script>
-    const laoMonths = [
-      'ມັງກອນ', 'ກຸມພາ', 'ມີນາ', 'ເມສາ',
-      'ພຶດສາພາ', 'ມີຖຸນາ', 'ກໍລະກົດ', 'ສິງຫາ',
-      'ກັນຍາ', 'ຕຸລາ', 'ພະຈິກ', 'ທັນວາ'
-    ];
+  const laoMonths = [
+    'ມັງກອນ', 'ກຸມພາ', 'ມີນາ', 'ເມສາ',
+    'ພຶດສາພາ', 'ມີຖຸນາ', 'ກໍລະກົດ', 'ສິງຫາ',
+    'ກັນຍາ', 'ຕຸລາ', 'ພະຈິກ', 'ທັນວາ'
+  ];
 
-    let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
-    let currentMonth = new Date().getMonth();
-    let currentYear = new Date().getFullYear();
+  let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+  let currentMonth = new Date().getMonth();
+  let currentYear = new Date().getFullYear();
 
-    function formatNumber(num) {
-      return parseFloat(num || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  function formatNumber(num) {
+    return parseFloat(num || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+
+  function updateMonthDisplay() {
+    document.getElementById('currentMonth').textContent = `${laoMonths[currentMonth]} ${currentYear}`;
+    renderIncome();
+  }
+
+  function renderIncome() {
+    const list = document.getElementById('transactionList');
+    list.innerHTML = '';
+
+    const filtered = transactions
+      .filter(t => t.type === 'income')
+      .filter(t => {
+        const date = new Date(t.date);
+        return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+      });
+
+    if (filtered.length === 0) {
+      const row = document.createElement('tr');
+      row.innerHTML = `<td colspan="4" style="text-align: center; padding: 20px; color: #aaa;">ບໍ່ມີລາຍການລາຍຮັບ</td>`;
+      list.appendChild(row);
+      return;
     }
 
-    function updateMonthDisplay() {
-      document.getElementById('currentMonth').textContent = `${laoMonths[currentMonth]} ${currentYear}`;
+    filtered.forEach((item, localIndex) => {
+      const date = new Date(item.date);
+      const day = date.getDate();
+      const month = laoMonths[date.getMonth()];
+      const year = date.getFullYear();
+      const formattedDate = `${day} ${month} ${year}`;
+
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td data-label="ວັນທີ">${formattedDate}</td>
+        <td data-label="ລາຍລະອຽດ">${item.detail || '-'}</td>
+        <td data-label="ຈຳນວນ" class="income">${formatNumber(item.amount)}</td>
+        <td data-label="ການກະທຳ" class="actions-cell">
+          <button class="action-btn edit-btn" onclick="editTransaction(${localIndex})"><i class="fas fa-edit"></i></button>
+          <button class="action-btn" onclick="deleteTransaction(${localIndex})"><i class="fas fa-trash"></i></button>
+        </td>
+      `;
+      list.appendChild(row);
+    });
+  }
+
+  // ✅ แก้ไขรายการ (ใช้ localIndex จาก filtered list)
+  window.editTransaction = function(localIndex) {
+    // ดึงรายการที่แสดงในเดือนนี้
+    const filteredIncome = transactions
+      .filter(t => t.type === 'income')
+      .filter(t => {
+        const date = new Date(t.date);
+        return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+      });
+
+    const item = filteredIncome[localIndex];
+    if (!item) return;
+
+    // หา index จริงใน transactions
+    const globalIndex = transactions.findIndex(t =>
+      t.type === item.type &&
+      t.date === item.date &&
+      t.amount === item.amount &&
+      t.detail === item.detail
+    );
+
+    if (globalIndex === -1) {
+      alert('ບໍ່ພົບລາຍການ');
+      return;
+    }
+
+    const newDetail = prompt('ປ້ອນລາຍລະອຽດໃໝ່:', item.detail || '');
+    if (newDetail === null) return;
+
+    const newAmount = prompt('ປ້ອນຈຳນວນເງິນໃໝ່:', item.amount);
+    if (newAmount === null || isNaN(newAmount) || newAmount <= 0) {
+      alert('ຈຳນວນເງິນບໍ່ຖືກຕ້ອງ');
+      return;
+    }
+
+    if (confirm('ແກ້ໄຂລາຍການນີ້ບໍ?')) {
+      // ✅ แก้ไขที่ index จริง
+      transactions[globalIndex].detail = newDetail;
+      transactions[globalIndex].amount = newAmount;
+      localStorage.setItem('transactions', JSON.stringify(transactions));
+      renderIncome(); // รีเฟรชหน้า
+    }
+  };
+
+  // ✅ ลบรายการ
+  window.deleteTransaction = function(localIndex) {
+    const filteredIncome = transactions
+      .filter(t => t.type === 'income')
+      .filter(t => {
+        const date = new Date(t.date);
+        return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+      });
+
+    const item = filteredIncome[localIndex];
+    if (!item) return;
+
+    const globalIndex = transactions.findIndex(t =>
+      t.type === item.type &&
+      t.date === item.date &&
+      t.amount === item.amount &&
+      t.detail === item.detail
+    );
+
+    if (globalIndex === -1) {
+      alert('ບໍ່ພົບລາຍການ');
+      return;
+    }
+
+    if (confirm('ລຶບລາຍການນີ້ບໍ?')) {
+      transactions.splice(globalIndex, 1);
+      localStorage.setItem('transactions', JSON.stringify(transactions));
       renderIncome();
     }
+  };
 
-    function renderIncome() {
-      const list = document.getElementById('transactionList');
-      list.innerHTML = '';
-
-      const filtered = transactions
-        .filter(t => t.type === 'income')
-        .filter(t => {
-          const date = new Date(t.date);
-          return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
-        });
-
-      if (filtered.length === 0) {
-        const row = document.createElement('tr');
-        row.innerHTML = `<td colspan="4" style="text-align: center; padding: 20px; color: #aaa;">ບໍ່ມີລາຍການລາຍຮັບ</td>`;
-        list.appendChild(row);
-        return;
-      }
-
-      filtered.forEach((t, index) => {
-        const date = new Date(t.date);
-        const day = date.getDate();
-        const month = laoMonths[date.getMonth()];
-        const year = date.getFullYear();
-        const formattedDate = `${day} ${month} ${year}`;
-
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td data-label="ວັນທີ">${formattedDate}</td>
-          <td data-label="ລາຍລະອຽດ">${t.detail || '-'}</td>
-          <td data-label="ຈຳນວນ" class="income">${formatNumber(t.amount)}</td>
-          <td data-label="ການກະທຳ" class="actions-cell">
-            <button class="action-btn edit-btn" onclick="editTransaction(${index})"><i class="fas fa-edit"></i></button>
-            <button class="action-btn" onclick="deleteTransaction(${index})"><i class="fas fa-trash"></i></button>
-          </td>
-        `;
-        list.appendChild(row);
-      });
-    }
-
-    // ແກ້ໄຂລາຍການ
-    window.editTransaction = function(index) {
-      const allIncome = transactions.filter(t => t.type === 'income');
-      const item = allIncome[index];
-      const globalIndex = transactions.findIndex(t =>
-        t.type === item.type && t.date === item.date && t.amount === item.amount && t.detail === item.detail
-      );
-
-      const newDetail = prompt('ປ້ອນລາຍລະອຽດໃໝ່:', item.detail || '');
-      if (newDetail === null) return;
-
-      const newAmount = prompt('ປ້ອນຈຳນວນເງິນໃໝ່:', item.amount);
-      if (newAmount === null || isNaN(newAmount) || newAmount <= 0) {
-        alert('ຈຳນວນເງິນບໍ່ຖືກຕ້ອງ');
-        return;
-      }
-
-      if (confirm('ແກ້ໄຂລາຍການນີ້ບໍ?')) {
-        transactions[globalIndex].detail = newDetail;
-        transactions[globalIndex].amount = newAmount;
-        localStorage.setItem('transactions', JSON.stringify(transactions));
-        renderIncome();
-      }
-    };
-
-    // ລຶບລາຍການ
-    window.deleteTransaction = function(index) {
-      const allIncome = transactions.filter(t => t.type === 'income');
-      const item = allIncome[index];
-      const globalIndex = transactions.findIndex(t =>
-        t.type === item.type && t.date === item.date && t.amount === item.amount && t.detail === item.detail
-      );
-
-      if (globalIndex !== -1 && confirm('ລຶບລາຍການນີ້ບໍ?')) {
-        transactions.splice(globalIndex, 1);
-        localStorage.setItem('transactions', JSON.stringify(transactions));
-        renderIncome();
-      }
-    };
-
-    // ປ່ຽນເດືອນ
-    document.getElementById('prevMonth').addEventListener('click', () => {
-      currentMonth--;
-      if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-      updateMonthDisplay();
-    });
-
-    document.getElementById('nextMonth').addEventListener('click', () => {
-      currentMonth++;
-      if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-      updateMonthDisplay();
-    });
-
-    // ເລີ່ມຕົ້ນ
+  // ปุ่มย้อน/ถัดไป
+  document.getElementById('prevMonth').addEventListener('click', () => {
+    currentMonth--;
+    if (currentMonth < 0) { currentMonth = 11; currentYear--; }
     updateMonthDisplay();
-  </script>
+  });
+
+  document.getElementById('nextMonth').addEventListener('click', () => {
+    currentMonth++;
+    if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+    updateMonthDisplay();
+  });
+
+  // เริ่มต้น
+  updateMonthDisplay();
+</script>
 </body>
 </html>
